@@ -1,18 +1,17 @@
 import XCTest
 import Argo
-import Runes
 
 class EquatableTests: XCTestCase {
   func testEqualJSONObjects() {
-    let json = JSON.parse <^> JSONFileReader.JSON(fromFile: "types")
-    let anotherParsed = JSON.parse <^> JSONFileReader.JSON(fromFile: "types")
+    let json = JSONFromFile("types").map(JSON.parse)
+    let anotherParsed = JSONFromFile("types").map(JSON.parse)
 
     XCTAssertEqual(json!, anotherParsed!)
   }
 
   func testNotEqualJSONObjects() {
-    let json = JSON.parse <^> JSONFileReader.JSON(fromFile: "types")
-    let anotherJSON = JSON.parse <^> JSONFileReader.JSON(fromFile: "types_fail_embedded")
+    let json = JSONFromFile("types").map(JSON.parse)
+    let anotherJSON = JSONFromFile("types_fail_embedded").map(JSON.parse)
 
     XCTAssertNotEqual(json!, anotherJSON!)
   }

@@ -1,5 +1,5 @@
 import Argo
-import Runes
+import Curry
 
 struct TestModel {
   let numerics: TestModelNumerics
@@ -10,15 +10,13 @@ struct TestModel {
   let eStringArray: [String]
   let eStringArrayOpt: [String]?
   let userOpt: User?
+  let dict: [String: String]
 }
 
 extension TestModel: Decodable {
-  static func create(numerics: TestModelNumerics)(string: String)(bool: Bool)(stringArray: [String])(stringArrayOpt: [String]?)(eStringArray: [String])(eStringArrayOpt: [String]?)(userOpt: User?) -> TestModel {
-    return TestModel(numerics: numerics, string: string, bool: bool, stringArray: stringArray, stringArrayOpt: stringArrayOpt, eStringArray: eStringArray, eStringArrayOpt: eStringArrayOpt, userOpt: userOpt)
-  }
-
   static func decode(j: JSON) -> Decoded<TestModel> {
-    return TestModel.create
+    let curriedInit = curry(self.init)
+    return curriedInit
       <^> j <| "numerics"
       <*> j <| ["user_opt", "name"]
       <*> j <| "bool"
@@ -27,6 +25,7 @@ extension TestModel: Decodable {
       <*> j <|| ["embedded", "string_array"]
       <*> j <||? ["embedded", "string_array_opt"]
       <*> j <|? "user_opt"
+      <*> (j <| "dict" >>- { [String: String].decode($0) })
   }
 }
 
@@ -39,12 +38,8 @@ struct TestModelNumerics {
 }
 
 extension TestModelNumerics: Decodable {
-  static func create(int: Int)(int64: Int64)(double: Double)(float: Float)(intOpt: Int?) -> TestModelNumerics {
-    return TestModelNumerics(int: int, int64: int64, double: double, float: float, intOpt: intOpt)
-  }
-
   static func decode(j: JSON) -> Decoded<TestModelNumerics> {
-    return TestModelNumerics.create
+    return curry(self.init)
       <^> j <| "int"
       <*> j <| "int64"
       <*> j <| "double"

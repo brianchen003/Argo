@@ -1,5 +1,5 @@
 import Argo
-import Runes
+import Curry
 
 struct Comment {
   let id: Int
@@ -8,12 +8,8 @@ struct Comment {
 }
 
 extension Comment: Decodable {
-  static func create(id: Int)(text: String)(authorName: String) -> Comment {
-    return Comment(id: id, text: text, authorName: authorName)
-  }
-
   static func decode(j: JSON) -> Decoded<Comment> {
-    return Comment.create
+    return curry(self.init)
       <^> j <| "id"
       <*> j <| "text"
       <*> j <| ["author", "name"]
